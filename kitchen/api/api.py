@@ -48,7 +48,6 @@ class KitchenSchedule(MethodView):
 def cancel_schedule(schedule_id):
     return schedules[0], 200
 
-
 @blueprint.route('/kitchen/schedules/<schedule_id>/status', methods=['GET'])
 def get_schedule_status(schedule_id):
     return schedules[0], 200
