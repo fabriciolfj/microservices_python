@@ -1,21 +1,36 @@
 import uuid
 from datetime import datetime
-from http import HTTPStatus
+from typing import Optional
 from uuid import UUID
 
 from fastapi import HTTPException
-from starlette.responses import Response
 from starlette import status
 
-from orders.app import app
 from orders.api.schemas import (GetOrderSchema, CreateOrderSchema, GetOrdersSchema)
+from orders.app import app
 
 ORDERS = []
 
 
 @app.get("/orders", response_model=GetOrdersSchema)
-def get_orders():
-    return {"orders": ORDERS}
+def get_orders(cancelled: Optional[bool] = None, limit: Optional[int] = None):
+    if cancelled is None and limit is None:
+        return {"orders": ORDERS}
+
+    query_set = [order for order in ORDERS]
+
+    if cancelled is not None:
+        if cancelled:
+            query_set = [
+                order for order in query_set if order['status'] == 'cancelled'
+            ]
+        else:
+            query_set = [order for order in query_set if order['statis'] != 'cancelled']
+
+    if limit is not None and len(query_set) > limit:
+        return {'orders', query_set[:limit]}
+
+    return {"orders": query_set}
 
 
 @app.post('/orders', status_code=status.HTTP_201_CREATED, response_model=GetOrderSchema)
@@ -70,4 +85,3 @@ def pay_order(order_id: UUID):
             order['status'] = 'progress'
             return order
     raise HTTPException(status_code=404, detail=f'Order with ID {order_id} not found')
-

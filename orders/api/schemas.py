@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List, Optional
 from uuid import UUID
 
-from pydantic import BaseModel, Field, conlist, conint
+from pydantic import BaseModel, Field, conlist, conint, Extra
 from pydantic.v1 import validator
 
 
@@ -31,9 +31,15 @@ class OrderItemSchema(BaseModel):
         assert value is not None, 'quantity may not be None'
         return value
 
+    class Config:
+        extra = Extra.forbid
+
 
 class CreateOrderSchema(BaseModel):
     order: conlist(OrderItemSchema)
+
+    class Config:
+        extra = Extra.forbid
 
 
 class GetOrderSchema(CreateOrderSchema):
