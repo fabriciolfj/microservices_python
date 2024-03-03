@@ -3,7 +3,7 @@ from datetime import datetime
 from flask.views import MethodView
 from flask_smorest import Blueprint
 
-from api.schemas import (
+from kitchen.api.schemas import (
     GetScheduledOrdersSchema,
     ScheduleOrderSchema,
     GetScheduledOrderSchema,
@@ -33,6 +33,13 @@ class KitchenSchedules(MethodView):
     @blueprint.arguments(GetKitchenScheduleParameters, location='query')
     @blueprint.response(status_code=200, schema=GetScheduledOrdersSchema)
     def get(self, parameters):
+        for schedule in schedules:
+            schedule = copy.deepcopy(schedule)
+            schedule['scheduled'] = schedule['scheduled'].isoformat()
+            errors = GetScheduledOrderSchema().validate(schedule)
+            if errors:
+                raise ValidationError(errors)
+
         if not parameters:
             return {'schedules': schedules}
 
@@ -48,7 +55,7 @@ class KitchenSchedules(MethodView):
                 query_set = [schedule for schedules in schedules
                              if schedule != 'progress']
 
-        since = parameters.get('since')
+        since = parameters.get('sincomce')
         if since is not None:
             if since:
                 query_set = [schedule for schedule in schedules
