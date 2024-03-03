@@ -1,9 +1,13 @@
+import copy
 import uuid
 from datetime import datetime
+
+from flask import abort
 from flask.views import MethodView
 from flask_smorest import Blueprint
+from marshmallow import ValidationError
 
-from kitchen.api.schemas import (
+from api.schemas import (
     GetScheduledOrdersSchema,
     ScheduleOrderSchema,
     GetScheduledOrderSchema,
@@ -11,21 +15,17 @@ from kitchen.api.schemas import (
     GetKitchenScheduleParameters
 )
 
+schedules = []
+
 blueprint = Blueprint('kitchen', __name__, description='Kitchen Api')
 
-schedules = [{
-    'id': str(uuid.uuid4()),
-    'scheduled': datetime.now(),
-    'status': 'pending',
-    'order': [
-        {
-            'product': 'capuccino',
-            'quantity': 1,
-            'size': 'big'
-        }
-    ]
-}]
 
+def validation_schedule(schedule):
+    schedule = copy.deepcopy(schedule)
+    schedule['scheduled'] = schedule['scheduled'].isoformat()
+    errors = GetScheduledOrderSchema().validate(schedule)
+    if errors:
+        raise ValidationError(errors)
 
 @blueprint.route('/kitchen/schedules')
 class KitchenSchedules(MethodView):
@@ -34,11 +34,7 @@ class KitchenSchedules(MethodView):
     @blueprint.response(status_code=200, schema=GetScheduledOrdersSchema)
     def get(self, parameters):
         for schedule in schedules:
-            schedule = copy.deepcopy(schedule)
-            schedule['scheduled'] = schedule['scheduled'].isoformat()
-            errors = GetScheduledOrderSchema().validate(schedule)
-            if errors:
-                raise ValidationError(errors)
+            validation_schedule(schedule)
 
         if not parameters:
             return {'schedules': schedules}
@@ -71,7 +67,13 @@ class KitchenSchedules(MethodView):
     @blueprint.arguments(ScheduleOrderSchema)
     @blueprint.response(status_code=201, schema=GetScheduledOrderSchema)
     def post(self, payload):
-        return schedules[0], 201
+        payload['id'] = str(uuid.uuid4())
+        payload['scheduled'] = datetime.utcnow()
+        payload['status'] = 'pending'
+        schedules.append(payload)
+
+        validation_schedule(payload)
+        return payload
 
 
 @blueprint.route('/kitchen/schedules/<schedule_id>')
@@ -79,25 +81,54 @@ class KitchenSchedule(MethodView):
 
     @blueprint.response(status_code=200, schema=GetScheduledOrderSchema)
     def get(self, schedule_id):
-        return schedules[0], 200
+        for schedule in schedules:
+            if schedule['id'] == schedule_id:
+                validation_schedule(schedule)
+                return schedule
+
+        abort(404, description=f'Resource with id {schedule_id} not found')
 
     @blueprint.arguments(ScheduleOrderSchema)
     @blueprint.response(status_code=200, schema=GetScheduledOrderSchema)
     def put(self, payload, schedule_id):
-        return schedules[0], 200
+        for schedule in schedules:
+            if schedule['id'] == schedule_id:
+                schedules.update(payload)
+
+                validation_schedule(schedule)
+                return schedule
+
+        abort(404, f'Resource id {schedule_id} not found')
 
     @blueprint.response(status_code=204)
     def delete(self, schedule_id):
-        return '', 204
+        for index, schedule in enumerate(schedules):
+            if schedule['id'] == schedule_id:
+                schedules.pop(index)
+                return
+
+        abort(404, description=f'Resouce id {schedule_id}, not found')
 
 
 @blueprint.response(status_code=200, schema=GetScheduledOrderSchema)
 @blueprint.route('/kitchen/schedules/<schedule_id>/cancel', methods=['POST'])
 def cancel_schedule(schedule_id):
-    return schedules[0], 200
+    for schedule in schedules:
+        if schedule['id'] == schedule_id:
+            schedule['status'] = 'cancelled'
+            validation_schedule(schedule)
+            return schedule
+
+    abort(404, description=f'Resouce id {schedule_id}, not found')
 
 
 @blueprint.response(status_code=200, schema=ScheduleStatusSchema)
 @blueprint.route('/kitchen/schedules/<schedule_id>/status', methods=['GET'])
 def get_schedule_status(schedule_id):
-    return schedules[0], 200
+    for schedule in schedules:
+        if schedule['id'] == schedule_id:
+            validation_schedule(schedule)
+            return {'status': schedule['status']}
+
+    abort(404, description=f'Resouce id {schedule_id}, not found')
+
