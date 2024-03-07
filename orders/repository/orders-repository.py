@@ -27,26 +27,26 @@ class OrdersRepository:
     def list(self, limit=None, **filters):
         query = self.session.query(OrderModel)
         if 'cancelled' in filters:
-            cancelled = filters.pop('cancelled')
-            if cancelled:
-                query = query.filter(OrderModel.status == 'cancelled')
-            else:
-                query = query.filter(OrderModel.status != 'cancelled')
+            query.filter(OrderModel.status == 'cancelled')
+        else:
+            query.filter(OrderModel.status != 'cancelled')
+
         records = query.filter_by(**filters).limit(limit).all()
         return [Order(**record.dict()) for record in records]
 
-    def update(self, id_, **payload):
+    def udpate(self, id_, **payload):
         record = self._get(id_)
-        if 'items' in payload:
+        if 'item' in payload:
             for item in record.items:
                 self.session.delete(item)
-            record.items = [
-                OrderItemModel(**item) for item in payload.pop('items')
-            ]
+            record.items = [OrderItemModel(**item) for item in payload.pop('items')]
+
         for key, value in payload.items():
-            setattr(record, key, value)
-        return Order(**record.dict)
+            setattr(
+                record, key, value
+            )
+
+        return Order(**record.dict())
 
     def delete(self, id_):
         self.session.delete(self._get(id_))
-
