@@ -8,6 +8,8 @@ fastapi = "*"
 uvicorn = "*"
 requests = "*"
 flask-smorest = "*"
+sqlalchemy = "*"
+alembic = "*"
 
 [requires]
 python_version = "3.10"

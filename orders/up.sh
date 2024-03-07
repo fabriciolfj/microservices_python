@@ -1,0 +1,1 @@
+uvicorn orders.web.app:app --reload
