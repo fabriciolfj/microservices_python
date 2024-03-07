@@ -36,7 +36,7 @@ class OrdersRepository:
         return [Order(**record.dict()) for record in records]
 
     def update(self, id_, **payload):
-        record = self._get(id)
+        record = self._get(id_)
         if 'items' in payload:
             for item in record.items:
                 self.session.delete(item)
