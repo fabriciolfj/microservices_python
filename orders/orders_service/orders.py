@@ -59,12 +59,14 @@ class Order:
 
     def pay(self):
         response = requests.post(
-            'http://localhost:3001/payments', json={'order_id': self.id}
+            'http://localhost:3001/payments',
+            json={'order_id': self.id}
         )
+
         if response.status_code == 201:
             return
         raise APIIntegrationError(
-            f'Could not process payment for order with id {self.id}'
+            f'Cloud not process payment for order with id {self.id}'
         )
 
     def schedule(self):

@@ -25,7 +25,7 @@ class OrderModel(Base):
     def dict(self):
         return {
             'id': self.id,
-            'item': [item.dic() for item in self.items],
+            'items': [item.dict() for item in self.items],
             'status': self.status,
             'created' : self.created,
             'schedule_id': self.schedule_id,

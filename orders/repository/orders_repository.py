@@ -11,6 +11,7 @@ class OrdersRepository:
             items=[OrderItemModel(**item) for item in items]
         )
         self.session.add(record)
+        print(f'record {record.dict()}')
         return Order(**record.dict(), order_=record)
 
     def _get(self, id_):

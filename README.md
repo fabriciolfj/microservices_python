@@ -28,3 +28,7 @@ PYTHONPATH=`pwd` alembic revision --autogenerate -m "Initial migration"
 ````
 PYTHONPATH=`pwd` alembic upgrade heads
 ````
+
+- para iniciar o mock
+ - usamos o prism
+ - prism mock open_api.yaml  --port 3000
