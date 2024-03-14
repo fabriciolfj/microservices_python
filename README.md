@@ -114,3 +114,13 @@ type Mutation {
   ): Product!
 }
 ```
+- usando o graphql fake
+```
+npm install graphql-faker
+
+./node_modules/.bin/graphql-faker schema.graphql
+```
+- expões os seguintes endpotins:
+  - /editor Um editor interativo onde você pode desenvolver sua API GraphQL.
+  - /graphql Uma interface GraphiQL para sua API GraphQL. Esta é a interface que usaremos para explorar a API e executar nossas consultas.
+  - /voyager Uma exibição interativa de sua API, que ajuda você a entender os relacionamentos e dependências entre seus tipos.
