@@ -1,0 +1,1 @@
+docker run -v=${PWD}:/workdir -p=9002:9002 apisguru/graphql-faker schema.graphql

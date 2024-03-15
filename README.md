@@ -119,8 +119,142 @@ type Mutation {
 npm install graphql-faker
 
 ./node_modules/.bin/graphql-faker schema.graphql
+
+ou 
+
+docker run -v=${PWD}:/workdir -p=9002:9002 apisguru/graphql-faker schema.graphql
+
 ```
 - expões os seguintes endpotins:
   - /editor Um editor interativo onde você pode desenvolver sua API GraphQL.
   - /graphql Uma interface GraphiQL para sua API GraphQL. Esta é a interface que usaremos para explorar a API e executar nossas consultas.
   - /voyager Uma exibição interativa de sua API, que ajuda você a entender os relacionamentos e dependências entre seus tipos.
+- Consulta de um objeto union, onde devemos especificar o que queremos de cada implementação
+```
+{
+  allProducts {
+    ...commonProperties
+    ...cakeProperties
+    ...beverageProperties
+  }
+}
+fragment commonProperties on ProductInterface {
+  name
+}
+ 
+fragment cakeProperties on Cake {
+  hasFilling
+}
+ 
+fragment beverageProperties on Beverage {
+  hasCreamOnTopOption
+}
+```
+- usando objetos como parâmetros de entrada para consulta
+```
+{
+  products(input: {maxPrice: 10}) {
+    ...on ProductInterface {
+      name
+    }
+  }
+}
+```
+- criando consultas com objetos alinhados
+````
+{
+  allProducts {
+    ...on ProductInterface {
+      name
+      ingredients {
+        ingredient {
+          name
+          supplier {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+````
+- executando múltiplas consultas na mesma requisição
+```
+{
+  allProducts {
+    ...commonProperties
+  }
+  allIngredients {
+    name
+  }
+}
+ 
+fragment commonProperties on ProductInterface {
+  name
+}
+```
+- usando alias
+```
+{
+# alias              funcao 
+  availableProducts: products(input: {available: true}) {
+    ...commonProperties
+  }
+  unavailableProducts: products(input: {available: false}) {
+    ...commonProperties
+  }
+}
+ 
+ # retorno, o que queremos
+fragment commonProperties on ProductInterface {
+  name
+}
+```
+- exemplo de mutation
+```
+# chamada
+mutation {
+  addProduct(name: "Mocha", type: beverage, input: {price: 10, size: BIG, ingredients: [{ingredient: 1, quantity: 1, unit: LITERS}]}) {
+    ...commonProperties
+  }
+}
+
+#  response, o que queremos
+fragment commonProperties on ProductInterface {
+  name
+}
+
+```
+- montando um wrapper para casos onde temos muitos parâmetros envolvidos na função
+```
+# Query document
+mutation CreateAndDeleteProduct(
+  $name: String!
+  $type: ProductType!
+  $input: AddProductInput!
+  $id: ID!
+) {
+  addProduct(name: $name, type: $type, input: $input) {
+    ...commonProperties
+  }
+  deleteProduct(id: $id)
+}
+ 
+fragment commonProperties on ProductInterface {
+  name
+}
+
+
+# na sessão de query variables
+
+{
+  "name": "Mocha",
+  "type": "beverage",
+  "input": {
+    "price": 10,
+    "size": "BIG",
+    "ingredients": [{"ingredient": 1, "quantity": 1, "unit": "LITERS"}]
+  },
+  "id": "asdf"
+}
+```
