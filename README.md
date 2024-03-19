@@ -268,3 +268,7 @@ curl http://localhost:9002/graphql --data-urlencode     'query={allIngredients{n
 - criamos o serviro e o schema
 - dentro do schame vinculamos os resolvedores para query, mutation e types
 - como ariadne utiliza documentação, no próprio schema adicionamos o arquivo .graphql da doc, para assim demonstrar o que espera como parâmetro, retorno e as operações
+- o que é um resolvedor?
+  - é uma função que sabe como processar a solicitação para uma determinada query ou mutation
+  - para registrar um resolvedor, usamos as classes QueryType ou MutationType
+  - podemos ter resolvedores de tipo, seja escalares ou tipo de atributo customizavel.
