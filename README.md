@@ -258,3 +258,13 @@ fragment commonProperties on ProductInterface {
   "id": "asdf"
 }
 ```
+- podemos fazer solicitações http para a api graphql (apenas get para querys ou post para mutatons), exemplo:
+```
+curl http://localhost:9002/graphql --data-urlencode     'query={allIngredients{name}}'
+```
+
+# Implementando graphql no pyhton usando ariadne
+- projeto product
+- criamos o serviro e o schema
+- dentro do schame vinculamos os resolvedores para query, mutation e types
+- como ariadne utiliza documentação, no próprio schema adicionamos o arquivo .graphql da doc, para assim demonstrar o que espera como parâmetro, retorno e as operações
