@@ -1,1 +1,1 @@
-uvicorn orders.web.app:app --reload
+AUTHO_ON=True uvicorn orders.web.app:app --reload

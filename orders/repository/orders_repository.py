@@ -28,9 +28,11 @@ class OrdersRepository:
     def list(self, limit=None, **filters):
         query = self.session.query(OrderModel)
         if 'cancelled' in filters:
-            query.filter(OrderModel.status == 'cancelled')
-        else:
-            query.filter(OrderModel.status != 'cancelled')
+            cancelled = filters.pop("cancelled")
+            if cancelled:
+                query.filter(OrderModel.status == 'cancelled')
+            else:
+                query.filter(OrderModel.status != 'cancelled')
 
         records = query.filter_by(**filters).limit(limit).all()
         return [Order(**record.dict()) for record in records]

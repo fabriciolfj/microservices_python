@@ -272,3 +272,16 @@ curl http://localhost:9002/graphql --data-urlencode     'query={allIngredients{n
   - é uma função que sabe como processar a solicitação para uma determinada query ou mutation
   - para registrar um resolvedor, usamos as classes QueryType ou MutationType
   - podemos ter resolvedores de tipo, seja escalares ou tipo de atributo customizavel.
+
+
+# JWT
+- gerando chave publica e privada
+```
+openssl req -x509 -nodes -newkey rsa:2048 -keyout private_key.pem -out public_key.pem -subj "/CN=coffeemesh"
+```
+- extraindo a chave publica
+```
+openssl x509 -pubkey -noout < public_key.pem > pubkey.pem
+```
+- registramos um middleware para interceptar as requisições, e assim validar o token.
+- o cors e sempre executado, desta forma deixamos o registro do mesmo por ultimo, uma vez que este não precisa de autenticação.
