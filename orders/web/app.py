@@ -24,7 +24,6 @@ from starlette.responses import Response, JSONResponse
 
 from orders.web.api.auth import decode_and_validate_token
 
-
 app = FastAPI(debug=True, openapi_url='/openapi/orders.json', docs_url='/docs/orders')
 
 oas_doc = yaml.safe_load(

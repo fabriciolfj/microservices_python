@@ -6,23 +6,25 @@ class OrdersRepository:
     def __init__(self, session):
         self.session = session
 
-    def add(self, items):
+    def add(self, items, user_id):
         record = OrderModel(
-            items=[OrderItemModel(**item) for item in items]
+            items=[OrderItemModel(**item) for item in items],
+            user_id=user_id
         )
         self.session.add(record)
         print(f'record {record.dict()}')
         return Order(**record.dict(), order_=record)
 
-    def _get(self, id_):
+    def _get(self, id_, **filters):
         return (
             self.session.query(OrderModel)
             .filter(OrderModel.id == str(id_))
+            .filter_by(**filters)
             .first()
         )
 
-    def get(self, id_):
-        order = self._get(id_)
+    def get(self, id_, **filters):
+        order = self._get(id_, **filters)
         return Order(**order.dict())
 
     def list(self, limit=None, **filters):

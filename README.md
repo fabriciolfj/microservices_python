@@ -22,6 +22,9 @@ alembic init migrations
 ````
 - para gerar as tabelas com base no orm
 ````
+coloca dentro do env 
+from orders.repository.models import Base
+target_metadata = Base.metadata
 PYTHONPATH=`pwd` alembic revision --autogenerate -m "Initial migration"
 ````
 - para aplicar
