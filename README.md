@@ -288,3 +288,19 @@ openssl x509 -pubkey -noout < public_key.pem > pubkey.pem
 ```
 - registramos um middleware para interceptar as requisições, e assim validar o token.
 - o cors e sempre executado, desta forma deixamos o registro do mesmo por ultimo, uma vez que este não precisa de autenticação.
+
+# Dredd
+- para testes de api
+- se basea no openapi para cenarios de testes
+- precisa ser instalado npm install dredd
+- exemplo de execução
+```
+./node_modules/.bin/dredd oas.yaml http://127.0.01:8000 --server "uvicorn orders.app:app"
+```
+- podemos criar condicionais aos nossos testes, como por exemplo o arquivo hooks.py, exemplo para executar os testes com as condicionais:
+```
+./node_modules/.bin/dredd oas.yaml http://127.0.0.1:8000 --server "uvicorn orders.app:app" --hookfiles=./hooks.py --language=python
+```
+
+# Testes em hipoteses
+- poemos usar o hypothesis para testes de propriedades (exemplo o arquivo test.py)
